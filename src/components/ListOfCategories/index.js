@@ -2,17 +2,28 @@ import React, {Fragment,useEffect,useState} from 'react'
 import {Category} from '../Category'
 import {List, Item} from './styles'
 
-export const ListOfCategories = () => {
+function useCategoriesData (){
     const [categories, setCategories] = useState([]) 
-    const [showFixed, setShowFixed] = useState(false)
+    const [loading, setLoading] = useState(false)
+
     useEffect(function(){
+        setLoading(true)
         fetch('https://petgram-server-josias.josiascubillosg.now.sh/categories')
             .then(res => res.json())
             .then(res => {
                 setCategories(res)
+                setLoading(false)
             })
     }, [])
 
+    return {categories, loading}
+
+}
+
+export const ListOfCategories = () => {
+    const {categories, loading} = useCategoriesData()
+    const [showFixed, setShowFixed] = useState(false)
+    
     useEffect(function(){
         const onScroll = e => {
             const newShowFixed = window.scrollY > 200
@@ -31,6 +42,10 @@ export const ListOfCategories = () => {
                 categories.map(category => <Item key={category.id}><Category {...category} /></Item>)
             }
         </List>
+    }
+
+    if(loading){
+        return 'Cargando...'
     }
 
     return(
